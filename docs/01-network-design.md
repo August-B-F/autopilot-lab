@@ -18,13 +18,13 @@ the VM reaches the DCs by routing **only** corp DC subnets through the WireGuard
 
 ## Topology and data path
 ```
-VM 10.0.20.0/24 ──(tower NAT→10.200.200.2)──▶ WG "tower" .2
+VM 10.0.20.0/24 ──(tower NAT->10.200.200.2)──▶ WG "tower" .2
         │ default route                                   │
         ▼ (direct internet: MS OOBE/Intune/Entra)         ▼ WG
    tower's Ethernet 192.168.1.91                     VPS hub wg0 10.200.200.1
                                                           │ forwards (ip_forward=1, FORWARD ACCEPT)
                                                           ▼ WG
-                              laptop WG "conection" .4 ──(laptop NAT→10.0.30.135)──▶ corporate VPN ──▶ DCs
+                              laptop WG "conection" .4 ──(laptop NAT->10.0.30.135)──▶ corporate VPN ──▶ DCs
 ```
 
 ## Per-node changes (all reversible)
@@ -40,14 +40,14 @@ VM 10.0.20.0/24 ──(tower NAT→10.200.200.2)──▶ WG "tower" .2
 - Resolve interfaces robustly: WG side = the WireGuard tunnel holding 10.200.200.4 ("conection");
   corp side = the adapter whose description matches "corporate SSL VPN".
 - Enable IPv4 forwarding on both interfaces; set `IPEnableRouter=1` for persistence.
-- `New-NetNat -InternalIPInterfaceAddressPrefix 10.200.200.0/24` → masquerades VM/tower traffic
+- `New-NetNat -InternalIPInterfaceAddressPrefix 10.200.200.0/24` -> masquerades VM/tower traffic
   onto the corporate VPN IP (10.0.30.135). DCs already permit that source (it's the laptop's VPN IP).
 - **Rollback:** `Remove-NetNat`, disable forwarding.
 
 ### Tower (`scripts/10-tower-network.ps1`, run elevated on the tower)
 - Create **internal** vSwitch `AutopilotLab`; assign host IP `10.0.20.1/24` (VM gateway).
 - Enable forwarding on the vSwitch host vNIC and the WG "tower" interface.
-- `New-NetNat -InternalIPInterfaceAddressPrefix 10.0.20.0/24` → one NAT masquerades VM traffic
+- `New-NetNat -InternalIPInterfaceAddressPrefix 10.0.20.0/24` -> one NAT masquerades VM traffic
   to 192.168.1.91 for default/internet flows and to 10.200.200.2 for WG/DC flows (egress-IP based).
 - Add DC subnets to the hub peer's AllowedIPs at runtime (`wg set tower peer <hub> allowed-ips ...`)
   and add on-link routes for each DC subnet via the "tower" interface.

@@ -4,10 +4,10 @@ The VM has **no DHCP** on the isolated AutopilotLab switch, so OOBE gets a **sta
 The hardware hash is pulled **offline** via the XFER transfer disk (no creds/network needed).
 
 ## A. Install Windows to OOBE
-1. Connect to the tower with Parsec; open **Hyper-V Manager → CLIENT-AP-TEST01 → Connect**.
+1. Connect to the tower with Parsec; open **Hyper-V Manager -> CLIENT-AP-TEST01 -> Connect**.
 2. Start the VM; press a key to boot the Win11 ISO. Click through Setup:
-   region/keyboard → **Install now** → "I don't have a product key" → **Windows 11 Pro** →
-   accept EULA → **Custom** → select the disk → Next. Let it install and reboot.
+   region/keyboard -> **Install now** -> "I don't have a product key" -> **Windows 11 Pro** ->
+   accept EULA -> **Custom** -> select the disk -> Next. Let it install and reboot.
    *(For hands-off reproduction, inject `artifacts/autounattend.xml` instead — automates these.)*
 3. It reboots into **OOBE** (the "Is this the right country/region?" screen). Stop here.
 
@@ -17,7 +17,7 @@ On the host (elevated): build + attach the transfer disk, then:
 scripts/lib/New-HashTransferDisk.ps1
 Add-VMHardDiskDrive -VMName CLIENT-AP-TEST01 -Path 'C:\ProgramData\Microsoft\Windows\Virtual Hard Disks\xfer.vhdx'
 ```
-In the VM at the OOBE region screen: **Shift+F10** → `cmd` opens →
+In the VM at the OOBE region screen: **Shift+F10** -> `cmd` opens ->
 ```
 powershell -ExecutionPolicy Bypass -Command "Get-Volume | ft DriveLetter,FileSystemLabel"   # find XFER's letter
 powershell -ExecutionPolicy Bypass -File <X>:\extract-hash.ps1                                # writes <X>:\hash.csv
@@ -34,7 +34,7 @@ On the host: `scripts/60-autopilot-import.ps1 -HashCsv artifacts\hash.csv`
 `CLIENT_Autopilot_HybridJoin`). Wait until the Autopilot device shows the profile **Assigned**.
 
 ## D. Run Autopilot (Hybrid Join)
-1. In the VM OOBE: **Shift+F10** → set the static IP so the device can reach Autopilot + the DCs:
+1. In the VM OOBE: **Shift+F10** -> set the static IP so the device can reach Autopilot + the DCs:
    ```
    netsh interface ip set address name="Ethernet" static 10.0.20.10 255.255.255.0 10.0.20.1
    netsh interface ip set dns    name="Ethernet" static 10.0.10.1
@@ -44,12 +44,12 @@ On the host: `scripts/60-autopilot-import.ps1 -HashCsv artifacts\hash.csv`
 2. Restart OOBE so the Autopilot profile is detected: `exit` then close, and from the host
    `Restart-VM CLIENT-AP-TEST01 -Force` (the static IP persists). At the first OOBE screen the
    Autopilot **Hybrid Join** branding should appear.
-3. Select region/keyboard, then it shows the **org sign-in** → enter an AD user
+3. Select region/keyboard, then it shows the **org sign-in** -> enter an AD user
    (`user@contoso.onmicrosoft.com` / on-prem creds). The device registers, the **ODJ connector**
    creates the computer object in `OU=Computers,OU=HQ,OU=Contoso,DC=corp,DC=example,DC=com`,
    the device applies the offline-domain-join blob (needs DC line-of-sight — that's our tunnel),
    and reboots.
-4. **ESP** (Enrollment Status Page) runs: Device prep → Device setup → Account setup.
+4. **ESP** (Enrollment Status Page) runs: Device prep -> Device setup -> Account setup.
    Apps/policies/scripts install (incl. LAPS `client-admin`, LocalAdmin-removal script).
 5. At the end, sign in with the AD account. Hybrid join completes after the next Entra Connect sync.
 
