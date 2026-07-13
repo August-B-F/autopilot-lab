@@ -6,6 +6,6 @@ The interesting part is the networking. For Hybrid Join to work, the machine has
 
 The scripts are split by machine and driven from one config file. There is one to build the VM, one to grab its hardware hash offline, one to import it into Autopilot over the Graph API, and one to check the enrolment afterwards.
 
-## where it is at
+## status
 
-The tunnel and the split routing work, and so do the VM build and the offline hardware hash capture. The full interactive Hybrid Join was paused before it finished in the reference run, because the remote laptop had to go offline, so treat the verify script as the check for that step rather than proof it passed. It is a single operator test lab, not production tooling.
+The tunnel, the split routing, the VM build and the offline hardware hash capture all work. The Hybrid Join has not been run all the way through yet, so the verify script is there to check that step. Still in progress.
