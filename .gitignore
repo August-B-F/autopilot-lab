@@ -1,0 +1,16 @@
+# Secrets — never commit the real file; the template is tracked.
+secrets/
+!secrets/secrets.example.ps1
+
+# Runtime capture that can contain real device data
+artifacts/devicecode.txt
+artifacts/*.log
+secrets/graph_refresh.txt
+
+# Large / generated media
+*.vhdx
+*.iso
+
+# Python
+__pycache__/
+*.pyc
